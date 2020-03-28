@@ -108,8 +108,8 @@ username = User(TOKEN)
 username.get_info()
 print(f'Текущий пользователь - {username.first_name} {username.last_name}')
 
-# two_users = input('Укажите ID двух пользователей, разделив их символом &, например, 62117789 & 23212039 ')
-two_users = '23212039 & 62117789'  # test
+two_users = input('Укажите ID двух пользователей, разделив их символом &, например, 62117789 & 23212039 ')
+# two_users = '23212039 & 62117789'  # test
 
 # 62117789 Me
 # 110027658 Аня - нет доступа
