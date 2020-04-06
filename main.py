@@ -85,9 +85,6 @@ def friends_list():
     return
 
 
-
-
-
 # 62117789 Me
 # 110027658 Аня - нет доступа
 # 23212039 Степа
@@ -102,12 +99,3 @@ user2.get_info(user_id_2)
 mutal_user_list = user1 & user2
 
 friends_list()
-
-
-# common_friends_list = []
-# for userid in mutal_user_list.get('response'):
-#     friend = User(TOKEN, userid)
-#     print(friend)
-#     common_friends_list.append(friend)  # список с представителями класса User
-# print(f'Всего {len(common_friends_list)} общих друзей')
-# print(common_friends_list)
