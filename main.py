@@ -1,8 +1,6 @@
-from pprint import pprint
-from typing import Any
 import sys
 import requests
-from urllib.parse import urlencode
+import time
 
 APP_ID = 7376843
 BASE_URL = 'https://oauth.vk.com/authorize'
@@ -15,7 +13,9 @@ auth_data = {
     'redirect_uri': 'https://example.com/'
 }
 
-TOKEN = 'cdf94efcb4a5021a7d008f5bb3f132cf2c2a9b34fb3be4b64d67a655803058c243af493eecae65163b4a9'
+
+TOKEN = 'f428320cf886b51998750431caae53420b854c4299d27a532e8dec3c07d6757eb2a55120f90265f78983c'
+
 
 params = {
     'access_token': TOKEN,
@@ -36,28 +36,13 @@ class User:
             v='5.95'
         )
 
-    def get_info(self):
+    def get_info(self, user_id):
         """
-        инфа о текущем пользователе
+        инфа о пользователе (по id)
         :return:
         """
         params = self.get_params()
-        response = requests.get(
-            'https://api.vk.com/method/users.get',
-            params
-        )
-        self.user_id = response.json()['response'][0]['id']
-        self.first_name = response.json()['response'][0]['first_name']
-        self.last_name = response.json()['response'][0]['last_name']
-        return response.json()
-
-    def get_more_info(self):
-        """
-        Инфа о тех, чьи ID указываются, и проверка доступа к профилю
-        :return:
-        """
-        params = self.get_params()
-        params['user_ids'] = userid
+        params['user_ids'] = user_id
         response = requests.get(
             'https://api.vk.com/method/users.get',
             params
@@ -66,67 +51,63 @@ class User:
         self.first_name = response.json()['response'][0]['first_name']
         self.last_name = response.json()['response'][0]['last_name']
         self.access = response.json()['response'][0]['can_access_closed']
-        if self.access == False:
-            print(f'{self.first_name} {self.last_name}')
-            print('доступа нет\nНельзя получить список общих друзей')
+        if self.access is False:
+            print(f'{self.first_name} {self.last_name}:')
+            print('Доступа нет, нельзя получить список общих друзей')
             sys.exit()
+        # time.sleep(0.35)  # удалить, если наиграюсь в вывод имен общих друзей
         return response.json()
 
-    def get_status(self):
+    def __and__(self, other_user):
         params = self.get_params()
-        response = requests.get(
-            'https://api.vk.com/method/status.get',
-            params
-        )
-        return response.json()
-
-    def friends_in_common(self):
-        params = self.get_params()
-        params['source_uid'] = users_from_string()[0]
-        params['target_uid'] = users_from_string()[1]
+        params['source_uid'] = user1.user_id
+        params['target_uid'] = user2.user_id
         response = requests.get(
             'https://api.vk.com/method/friends.getMutual',
             params
         )
         return response.json()
 
-
-def users_from_string():
-    """
-    Получаем из введенной строки список с 2 ID без пробелов
-    :return:
-    """
-    users_split = two_users.split('&')
-    users = []
-    for u in users_split:
-        u = u.strip()
-        users.append(u)
-    return users
+    def __str__(self):
+        # friend.get_info(userid)
+        return f'https://vk.com/id{self.user_id}'
+        # return f'https://vk.com/id{self.user_id} ({self.first_name} {self.last_name})'
 
 
-username = User(TOKEN)
-username.get_info()
-print(f'Текущий пользователь - {username.first_name} {username.last_name}')
+def friends_list():
+    common_friends_list = []
+    for userid in mutal_user_list.get('response'):
+        friend = User(TOKEN, userid)
+        print(friend)
+        common_friends_list.append(friend)  # список с представителями класса User
+    print(f'Всего {len(common_friends_list)} общих друзей')
+    print(common_friends_list)
+    return
 
-two_users = input('Укажите ID двух пользователей, разделив их символом &, например, 62117789 & 23212039 ')
-# two_users = '23212039 & 62117789'  # test
+
+
+
 
 # 62117789 Me
 # 110027658 Аня - нет доступа
 # 23212039 Степа
 
 
-for usr in users_from_string():
-    userid = usr
-    username.get_more_info()
-    print(username.first_name, username.last_name)
+user_id_1 = 62117789  # input
+user_id_2 = 23212039  # input
+user1 = User(TOKEN, user_id_1)
+user1.get_info(user_id_1)
+user2 = User(TOKEN, user_id_2)
+user2.get_info(user_id_2)
+mutal_user_list = user1 & user2
+
+friends_list()
 
 
-pprint(username.friends_in_common().get('response'))  # список ID общих друзей
-
-
-common_friends_list = []
-for userid in username.friends_in_common().get('response'):
-    friend = User(userid)
-    common_friends_list.append(friend)  # список с представителями класса Friend
-print(common_friends_list)
+# common_friends_list = []
+# for userid in mutal_user_list.get('response'):
+#     friend = User(TOKEN, userid)
+#     print(friend)
+#     common_friends_list.append(friend)  # список с представителями класса User
+# print(f'Всего {len(common_friends_list)} общих друзей')
+# print(common_friends_list)
